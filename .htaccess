@@ -9,6 +9,7 @@ Header always set Content-Security-Policy "default-src 'self'; script-src 'self'
 </IfModule>
 <IfModule mod_rewrite.c>
 RewriteEngine On
+RewriteRule (^|/)\.(git|env)(/|$|\.) - [F,L]
 RewriteCond %{HTTPS} !=on
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 RewriteCond %{REQUEST_FILENAME} !-f
