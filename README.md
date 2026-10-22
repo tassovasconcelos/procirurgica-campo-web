@@ -12,7 +12,7 @@ Cadastro de pacientes fictícios, fichas textuais StomaPro e ConfortCath dirigid
 
 O modo de demonstração usa dados fictícios na memória da aba e não envia registros ao backend. O modo autenticado utiliza exclusivamente o namespace de tabelas `campo_*` do projeto Supabase Procirúrgica existente. Não modifica tabelas comerciais nem compartilha registros da demonstração com a base autenticada.
 
-O perfil gestor foi vinculado à conta Auth previamente existente `gritsolucoes@gmail.com`. Não foi criada senha, não existe senha padrão e o cadastro público está fechado. O teste de login real depende da entrada pelo titular da conta; não foi realizado com a senha do usuário.
+O perfil superadmin foi vinculado à conta Auth previamente existente `gritsolucoes@gmail.com`. Não foi criada senha, não existe senha padrão e o cadastro público está fechado. Além da senha, a versão 0.2.1 oferece código por e-mail para contas existentes (`create_user: false`). O modelo de e-mail preserva o link anterior e acrescenta o código de uso único. O envio depende das regras e limites do serviço de e-mail do Supabase. A entrada final depende da senha ou do código recebido pelo titular; não foi realizada com credenciais do usuário.
 
 ## Segurança implementada e verificada
 
