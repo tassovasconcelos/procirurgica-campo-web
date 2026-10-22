@@ -8,6 +8,16 @@ Publicado em 22/10/2026 na Hostinger:
 
 ## Escopo desta publicação
 
+### Atualização 0.3.0
+
+Menu **Usuários**: listar perfis da empresa, vincular uma conta Auth já confirmada, editar nome, nível e situação. Não cria contas Auth novas nem envia convites. Gestor administra apenas o time de campo; superadmin administra os níveis de sua empresa. O próprio administrador não pode desativar ou rebaixar o próprio acesso.
+
+Menu **Importar pacientes**: CSV e XLSX até 5 MB e 2.000 registros por lote, primeira aba, mapeamento de código/nome/linha/cidade/UF/telefone, prévia de até 50 linhas e relatório de validação completo. A confirmação grava somente linhas válidas; duplicados são ignorados e não atualizam pacientes existentes. O banco valida o lote de forma atômica e reconhece repetição do mesmo protocolo, protegendo contra duplicação após falha de rede. Arquivos não são armazenados; o navegador envia somente os campos confirmados. O módulo permanece restrito a dados fictícios de homologação, sem inferir consentimento de pacientes reais.
+
+Modelo CSV disponível no próprio importador. XLSX é lido localmente por um leitor restrito que não executa fórmulas, macros nem links externos. Planilhas protegidas, complexas, fora dos limites ou arquivos XLS antigos são rejeitados com orientação. Fórmulas precisam ser convertidas para valores antes da importação. Preserve códigos como texto no Excel.
+
+Testes transacionais revertidos verificaram isolamento, autodesativação bloqueada, rollback integral de lote inválido, deduplicação sem distinção entre maiúsculas e minúsculas, reenvio idempotente e exigência de homologação. Nenhum paciente de teste foi mantido por esses testes no banco.
+
 Cadastro de pacientes fictícios, fichas textuais StomaPro e ConfortCath dirigidas pelos JSON, rascunhos, acompanhamento e retornos, protocolos de testes de padronização com critérios, amostras, evolução e resultado.
 
 O modo de demonstração usa dados fictícios na memória da aba e não envia registros ao backend. O modo autenticado utiliza exclusivamente o namespace de tabelas `campo_*` do projeto Supabase Procirúrgica existente. Não modifica tabelas comerciais nem compartilha registros da demonstração com a base autenticada.
