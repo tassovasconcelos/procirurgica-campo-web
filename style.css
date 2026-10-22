@@ -5,3 +5,13 @@
 [hidden]{display:none!important}
 
 .prontuario-midia{display:block;width:100%;max-height:65vh;object-fit:contain;background:#f3f5f7;border-radius:12px}
+
+.modal-head{position:sticky;top:0;background:white;z-index:3}
+.modal-body{overflow-wrap:anywhere}.form-grid>*,fieldset{min-width:0}.texto-prontuario{white-space:pre-wrap}
+@media(max-width:760px){
+ .patient-table,.patient-table tbody,.patient-table tr,.patient-table td{display:block;width:100%;white-space:normal}
+ .patient-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ .patient-table tbody tr{border:1px solid var(--line);border-radius:12px;padding:10px;margin:12px 0;background:#fff}
+ .patient-table td{border:0;padding:8px 6px}.patient-table td:before{content:attr(data-label);display:block;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:5px}
+ .patient-table td:last-child .btn{width:100%}.toolbar{flex-wrap:wrap}.toolbar label.field{flex:1 1 180px;min-width:0;margin:8px 0}
+}

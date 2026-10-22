@@ -19,3 +19,18 @@ export function indicadoresCadastros(rows){
  return{pacientes:rows.length,produtos:produtos.length,testes:count('teste_status','em_teste'),testesAprovados:count('teste_status','aprovado'),testesReprovados:count('teste_status','reprovado'),homologacoes:count('homologacao_status','em_homologacao'),aprovadas,reprovadas,taxa:aprovadas+reprovadas?100*aprovadas/(aprovadas+reprovadas):null,cross:produtos.filter(p=>p.cross?.trim()&&p.oportunidade_status!=='descartada').length,up:rows.filter(r=>r.dados.perfil_upsell==='potencial').length,liminares:rows.filter(r=>r.dados.modalidade==='liminar').length,particulares:rows.filter(r=>r.dados.modalidade==='particular').length,comPlano:rows.filter(r=>r.dados.tem_plano).length};
 }
 
+
+export function dataISOValida(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v??''))return false;const d=new Date(v+'T12:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===v;}
+export function filtrarCadastros(rows,f={},pacientes=[]){
+ return rows.filter(r=>(!f.modalidade||r.dados.modalidade===f.modalidade)&&(!f.responsavel||pacientes.find(p=>p.id===r.paciente_id)?.responsavel_id===f.responsavel)).map(r=>({...r,dados:{...r.dados,produtos:(r.dados.produtos??[]).filter(p=>(!f.busca||[p.nome,p.marca,p.modelo].join(' ').toLowerCase().includes(f.busca.toLowerCase()))&&(!f.teste||p.teste_status===f.teste)&&(!f.homologacao||p.homologacao_status===f.homologacao))}})).filter(r=>(!f.busca&&!f.teste&&!f.homologacao)||r.dados.produtos.length);
+}
+export function pendenciasAcompanhamento(rows,pacientes,hoje){
+ if(!dataISOValida(hoje))throw Error('Data de referência inválida.');
+ const limite=new Date(hoje+'T12:00:00Z');limite.setUTCDate(limite.getUTCDate()+30);const ate=limite.toISOString().slice(0,10),pendencias=[];
+ for(const r of rows){const paciente=pacientes.find(p=>p.id===r.paciente_id);if(!paciente)continue;
+  for(const p of r.dados.produtos??[]){if(!dataISOValida(p.retorno)||p.teste_status==='suspenso'&&p.homologacao_status!=='em_homologacao')continue;pendencias.push({paciente_id:r.paciente_id,paciente:paciente.nome,dia:p.retorno,tipo:'produto',titulo:p.nome,teste:p.teste_status,homologacao:p.homologacao_status,atrasado:p.retorno<hoje,hoje:p.retorno===hoje});}
+  const validade=r.dados.liminar_validade;if(r.dados.modalidade==='liminar'&&dataISOValida(validade)&&validade<=ate)pendencias.push({paciente_id:r.paciente_id,paciente:paciente.nome,dia:validade,tipo:'liminar',titulo:'Revisar validade informada da liminar',atrasado:validade<hoje,hoje:validade===hoje});
+ }
+ return pendencias.sort((a,b)=>a.dia.localeCompare(b.dia)||a.paciente.localeCompare(b.paciente));
+}
+
