@@ -1,4 +1,5 @@
 export function normalizarEmail(valor) { return String(valor ?? '').trim().toLowerCase(); }
+export function emailValido(valor) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizarEmail(valor)); }
 export function papelGerencial(papel) { return papel === 'gestor' || papel === 'superadmin'; }
 export function mensagemAuth(codigo, status) {
   if (codigo === 'invalid_credentials') return 'E-mail ou senha não reconhecidos. Você também pode entrar com um código enviado ao seu e-mail.';
