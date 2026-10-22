@@ -1,5 +1,5 @@
 // Somente arquivos públicos. Nunca intercepta autenticação ou dados de pacientes.
-const CACHE='campo-shell-v4';
+const CACHE='campo-shell-v4-1';
 const FILES=['/','/index.html','/style.css','/app.js','/auth-utils.js','/import-utils.js','/admin-import-ui.js','/engine.js','/forms.json','/config.js','/icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
