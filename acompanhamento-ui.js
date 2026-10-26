@@ -11,6 +11,7 @@ export async function abrirAcompanhamento(p,ctx,voltar,juridico=false,initial={}
 
  const controls={tipo:document.querySelector('#acoes-tipo'),status:document.querySelector('#acoes-status'),busca:document.querySelector('#acoes-busca'),vencidas:document.querySelector('#acoes-vencidas')};
  function filtrar(){
+ const consumo=controls.tipo.value==='consumo';controls.status.disabled=consumo;controls.vencidas.disabled=consumo;if(consumo){controls.status.value='';controls.vencidas.checked=false;}
  for(const [k,c] of Object.entries(controls))filtros[k]=c.type==='checkbox'?c.checked:c.value;
  const visibles=filtrarAcompanhamento(rows,filtros,ctx.hoje()),ids=new Set(visibles.map(r=>r.item_id)),root=document.querySelector('#acoes-lista'),nodes=new Map([...root.querySelectorAll('[data-acao-item]')].map(n=>[n.dataset.acaoItem,n]));
  for(const [id,node] of nodes)node.hidden=!ids.has(id);for(const r of visibles)if(nodes.has(r.item_id))root.append(nodes.get(r.item_id));
