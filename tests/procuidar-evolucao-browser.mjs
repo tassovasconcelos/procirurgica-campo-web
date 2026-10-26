@@ -15,5 +15,20 @@ assert.deepEqual(await page.evaluate(()=>window.sent[0]),await page.evaluate(()=
 await page.locator('[data-v-edit]').click();await page.locator('[name=status]').selectOption('realizada');await page.locator('[name=registro]').selectOption('record');await page.locator('input[type=checkbox]').check();await page.locator('[type=submit]').click();await page.locator('[data-v-nps]').waitFor();await page.locator('[data-v-nps]').click();await page.locator('[name=nota]').selectOption('10');await page.locator('[name=respondente]').selectOption('cuidador');await page.locator('input[type=checkbox]').check();await page.locator('[type=submit]').click();await page.waitForFunction(()=>window.scores.length===1);assert.match(await page.locator('#visita-indicadores').innerText(),/100/);
 await page.evaluate(async()=>{const {paginaCofre,ativarCofre}=await import('/cofre-ui.js');document.querySelector('#app').innerHTML=paginaCofre();await ativarCofre({perfil:{papel:'campo'},pacientesCofre:async()=>[{id:'p',nome:'Fictício',codigo:'F1'}],notify:()=>{},enviarDocumento:async(p,f)=>{window.fileBytes=[...new Uint8Array(await f.arrayBuffer())];return {sha256:'teste-ficticio'};}});});
 await page.locator('#cofre-paciente').selectOption('p');await page.locator('#cofre-form').waitFor();assert.match(await page.locator('#cofre-conteudo').innerText(),/Consulta restrita/);const bytes=Buffer.from([137,80,78,71,13,10,26,10]);await page.locator('[name=arquivo]').setInputFiles({name:'ficticio.png',mimeType:'image/png',buffer:bytes});await page.locator('input[type=checkbox]').check();await page.locator('[type=submit]').click();await page.waitForFunction(()=>!!window.fileBytes);assert.deepEqual(await page.evaluate(()=>window.fileBytes),[...bytes]);assert.deepEqual(errors,[]);
+await page.goto('http://127.0.0.1:8100/campo/');
+await page.locator('#demo').click();await page.locator('#visita-nova').waitFor();
+assert.equal(await page.locator('.field-bottom-nav').isVisible(),true);
+assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+await page.locator('.field-bottom-nav a').filter({hasText:'Pacientes'}).click();
+await page.locator('[data-open="pacientes"]').first().click();await page.locator('#editar-cadastro-paciente').click();
+await page.locator('[name=responsavel_tipo]').selectOption('cuidador');await page.locator('[name=responsavel_nome]').fill('Cuidador fictício');
+await page.locator('[name=responsavel_telefone]').fill('00000000000');await page.locator('[name=tem_plano]').check();await page.locator('[name=plano_nome]').fill('Plano fictício');
+await page.locator('[name=endereco]').fill('Rua fictícia');await page.locator('[name=liminar_situacao]').selectOption('preparacao');
+await page.locator('#cadastro-paciente input[type=checkbox][required]').check();await page.locator('#cadastro-paciente [type=submit]').click();
+await page.locator('#cadastro-resumo').filter({hasText:'Cuidador fictício'}).waitFor();assert.match(await page.locator('#cadastro-resumo').innerText(),/Plano fictício/);
+assert.match(await page.locator('#cadastro-resumo').innerText(),/Rua fictícia/);
+await page.locator('#nova-anamnese').click();await page.locator('[name=queixa]').fill('Avaliação inicial fictícia');await page.locator('[name=mobilidade]').fill('Mobilidade informada fictícia');await page.locator('[name=objetivo_cuidado]').fill('Meta fictícia');
+await page.locator('#prontuario-form input[type=checkbox]').check();await page.locator('#prontuario-form [type=submit]').click();
+await page.locator('#prontuario-historico').filter({hasText:'Meta fictícia'}).waitFor();assert.deepEqual(errors,[]);
 console.log('Browser mobile: agenda, retry, conclusão, NPS e envio sem transformação aprovados (APIs simuladas).');
 }finally{await browser?.close();server.close();}
