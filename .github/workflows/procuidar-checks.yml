@@ -1,7 +1,7 @@
 name: ProCuidar checks
 on:
   push:
-    branches: [feat/crm-cuidado-juridico-v2, feat/procuidar-visitas-qualidade, feat/procuidar-metas-consumo-pesquisas, main]
+    branches: [feat/crm-cuidado-juridico-v2, feat/procuidar-visitas-qualidade, feat/procuidar-metas-consumo-pesquisas, feat/procuidar-prioridades-consumo, main]
   pull_request:
 permissions:
   contents: read
@@ -20,6 +20,7 @@ jobs:
           node --experimental-default-type=module tests/procuidar-formularios.test.mjs
           node --experimental-default-type=module tests/visitas.test.mjs
           node --experimental-default-type=module tests/acompanhamento.test.mjs
+          node --experimental-default-type=module tests/prioridades.test.mjs
       - name: Browser dependencies
         run: |
           npm install --no-save playwright@1.56.1
@@ -33,6 +34,7 @@ jobs:
           node --experimental-default-type=module tests/procuidar-browser.mjs
           node --experimental-default-type=module tests/procuidar-evolucao-browser.mjs
           node --experimental-default-type=module tests/procuidar-quatro-frentes-browser.mjs
+          node --experimental-default-type=module tests/procuidar-prioridades-browser.mjs
   verify-hostinger:
     if: github.ref == 'refs/heads/main'
     needs: validate

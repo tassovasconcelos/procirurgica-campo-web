@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {filtrarAcompanhamento,resumirConsumo,filtrarPrioridadeVisitas} from '../prioridades-utils.js';
+const r=(id,tipo,dados,created='2026-10-20T12:00:00Z')=>({item_id:id,evento_id:id,tipo,dados,criado_em:created});
+const rows=[r('a','tarefa',{titulo:'Tarefa antiga',prazo:'2026-10-20',status:'aberta'}),r('b','tarefa',{titulo:'Concluída',prazo:'2026-10-19',status:'concluida'}),r('c','meta',{titulo:'Meta futura',prazo:'2026-10-30',status:'aberta'})];
+assert.deepEqual(filtrarAcompanhamento(rows,{vencidas:true},'2026-10-26').map(r=>r.item_id),['a']);
+assert.equal(filtrarAcompanhamento(rows,{busca:'ANTIGA'},'2026-10-26').length,1);
+const d={produto:'Produto fictício',referencia:'R1',unidade:'unidade',consumo_dia:'4',estoque:'24',data_referencia:'2026-10-20'};
+const g=resumirConsumo([r('1','consumo',d),r('2','consumo',{...d,estoque:'12',data_referencia:'2026-10-25'}),r('3','consumo',{...d,unidade:'caixa'})],'2026-10-26');
+assert.equal(g.length,2);assert.equal(g.find(x=>x.ultimo.dados.unidade==='unidade').ultimo.item_id,'2');assert.equal(g.find(x=>x.ultimo.dados.unidade==='unidade').autonomia,3);
+assert.equal(resumirConsumo([r('4','consumo',{...d,data_referencia:'2026-10-01'})],'2026-10-26')[0].desatualizado,true);
+const visitas=[{id:'1',inicio:'2026-10-26T01:00:00Z',fim:'2026-10-26T02:00:00Z',status:'agendada'},{id:'2',inicio:'2026-10-26T13:00:00Z',fim:'2026-10-26T14:00:00Z',status:'realizada'}];
+assert.equal(filtrarPrioridadeVisitas(visitas,'hoje','2026-10-26',Date.parse('2026-10-26T15:00:00Z')).length,1);
+assert.equal(filtrarPrioridadeVisitas(visitas,'atrasadas','2026-10-26',Date.parse('2026-10-26T15:00:00Z'))[0].id,'1');
+console.log('Prioridades: prazos, agrupamento por unidade, datas de relatos e fuso de Brasília aprovados');
