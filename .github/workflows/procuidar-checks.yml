@@ -1,7 +1,7 @@
 name: ProCuidar checks
 on:
   push:
-    branches: [feat/crm-cuidado-juridico-v2, main]
+    branches: [feat/crm-cuidado-juridico-v2, feat/procuidar-visitas-qualidade, main]
   pull_request:
 permissions:
   contents: read
@@ -16,11 +16,20 @@ jobs:
           node-version: '22'
       - name: Syntax and validation
         run: |
-          node --experimental-default-type=module --check procuidar-formularios-ui.js
-          node --experimental-default-type=module --check prontuario-ui.js
+          for file in *.js; do node --experimental-default-type=module --check "$file"; done
           node --experimental-default-type=module tests/procuidar-formularios.test.mjs
+          node --experimental-default-type=module tests/visitas.test.mjs
+      - name: Browser dependencies
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser mobile and regression
+        run: |
+          node --experimental-default-type=module tests/procuidar-browser.mjs
+          node --experimental-default-type=module tests/procuidar-evolucao-browser.mjs
   verify-hostinger:
     if: github.ref == 'refs/heads/main'
+    needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

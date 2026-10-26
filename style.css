@@ -15,3 +15,15 @@
  .patient-table td{border:0;padding:8px 6px}.patient-table td:before{content:attr(data-label);display:block;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:5px}
  .patient-table td:last-child .btn{width:100%}.toolbar{flex-wrap:wrap}.toolbar label.field{flex:1 1 180px;min-width:0;margin:8px 0}
 }
+
+.field-bottom-nav{display:none}.visit-card{overflow-wrap:anywhere}.visit-card .row{flex-wrap:wrap}
+@media(max-width:760px){
+ .field-mode .content{padding-bottom:100px}
+ .field-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px #15233312}
+ .field-bottom-nav a{display:flex;align-items:center;justify-content:center;min-height:48px;text-align:center;text-decoration:none;font-size:12px;font-weight:700;color:var(--muted);border-radius:10px}
+ .field-bottom-nav a[aria-current=page]{background:#fce8e9;color:var(--red)}
+ input,select,textarea{font-size:16px}.btn{min-height:44px}
+ .visit-card .row .btn{flex:1 1 130px}
+ dialog{width:calc(100% - 16px);max-height:94dvh}.modal-actions{flex-wrap:wrap}
+ .page-head{flex-wrap:wrap;gap:12px}#toast{bottom:85px;right:12px;left:12px}
+}

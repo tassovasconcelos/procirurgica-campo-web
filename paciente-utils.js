@@ -1,11 +1,13 @@
 export const ETAPAS={adaptacao:'Adaptação',padronizacao:'Padronização',uso_continuo:'Uso contínuo'};
 export const TESTES={nao_iniciado:'Não iniciado',em_teste:'Em teste',aprovado:'Aprovado',reprovado:'Reprovado',suspenso:'Suspenso'};
 export const HOMOLOGACOES={nao_iniciada:'Não iniciada',em_homologacao:'Em homologação',aprovada:'Aprovada',reprovada:'Reprovada'};
-export function cadastroVazio(){return{responsavel_tipo:'proprio',responsavel_nome:'',responsavel_vinculo:'',responsavel_telefone:'',modalidade:'nao_informado',liminar_numero:'',liminar_orgao:'',liminar_validade:'',tem_plano:false,plano_nome:'',etapa:'adaptacao',perfil_upsell:'nao_avaliado',motivo_upsell:'',produtos:[]};}
+export function cadastroVazio(){return{endereco:'',numero:'',bairro:'',cep:'',complemento:'',liminar_situacao:'nao_informado',responsavel_tipo:'proprio',responsavel_nome:'',responsavel_vinculo:'',responsavel_telefone:'',modalidade:'nao_informado',liminar_numero:'',liminar_orgao:'',liminar_validade:'',tem_plano:false,plano_nome:'',etapa:'adaptacao',perfil_upsell:'nao_avaliado',motivo_upsell:'',produtos:[]};}
 export function produtoVazio(){return{nome:'',marca:'',modelo:'',quantidade:1,periodo:'mes',unidade:'unidade',finalidade:'uso_continuo',teste_status:'nao_iniciado',homologacao_status:'nao_iniciada',inicio:'',retorno:'',conclusao:'',resultado:'',cross:'',up:'',oportunidade_status:'identificada',justificativa:''};}
 export function consumoMensal(p){const n=Number(p.quantidade);return Number.isFinite(n)&&n>0?n*({dia:30,semana:30/7,mes:1}[p.periodo]??0):0;}
 export function validarCadastro(d){
  if(d.responsavel_tipo!=='proprio'&&d.responsavel_nome.trim().length<2)throw Error('Informe o familiar ou cuidador responsável.');
+ if(d.liminar_situacao==='sim'&&d.liminar_numero.trim().length<2)throw Error('Identifique a liminar.');
+ if(d.modalidade==='liminar'&&d.liminar_situacao&&d.liminar_situacao!=='sim')throw Error('Identifique a liminar na situação do paciente.');
  if(d.modalidade==='liminar'&&d.liminar_numero.trim().length<2)throw Error('Identifique a liminar.');
  if(d.tem_plano&&d.plano_nome.trim().length<2)throw Error('Informe o plano de saúde.');
  if(d.perfil_upsell==='potencial'&&d.motivo_upsell.trim().length<3)throw Error('Justifique o potencial de up sell para avaliação profissional.');

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {indicadoresVisitas,validarVisita} from '../visitas-utils.js';
+const now=Date.now(),iso=n=>new Date(now+n).toISOString();
+const visits=[{id:'a',status:'realizada',inicio:iso(-7200000),fim:iso(-3600000)},{id:'b',status:'agendada',inicio:iso(-7200000),fim:iso(-3600000)},{id:'c',status:'confirmada',inicio:iso(3600000),fim:iso(7200000)}];
+const m=indicadoresVisitas(visits,[{visita_id:'a',nota:10}],now);
+assert.equal(m.atrasadas,1);assert.equal(m.cumprimento,50);assert.equal(m.nps,100);assert.equal(m.cobertura,100);
+assert.equal(indicadoresVisitas([],[],now).nps,null);
+assert.equal(indicadoresVisitas(visits,[{visita_id:'other',nota:0}],now).respostas,0);
+assert.throws(()=>validarVisita({paciente_id:'p',profissional_id:'n',objetivo:'Teste',inicio:iso(1),fim:iso(0),status:'agendada'}));
+assert.throws(()=>validarVisita({paciente_id:'p',profissional_id:'n',objetivo:'Teste',inicio:iso(0),fim:iso(1000),status:'realizada'}));
+assert.throws(()=>validarVisita({paciente_id:'p',profissional_id:'n',objetivo:'Teste',inicio:iso(0),fim:iso(1000),status:'cancelada',motivo:''}));
+console.log('Agenda e indicadores: denominadores, NPS e validações aprovados');
