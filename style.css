@@ -27,3 +27,5 @@
  dialog{width:calc(100% - 16px);max-height:94dvh}.modal-actions{flex-wrap:wrap}
  .page-head{flex-wrap:wrap;gap:12px}#toast{bottom:85px;right:12px;left:12px}
 }
+
+.pesquisa-publica{max-width:640px;margin:auto}

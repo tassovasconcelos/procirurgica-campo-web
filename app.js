@@ -1,3 +1,4 @@
+import { abrirAcompanhamento } from './acompanhamento-ui.js';
 import { paginaVisitas, ativarVisitas } from './visitas-ui.js';
 import { paginaCofre, ativarCofre } from './cofre-ui.js';
 import { instalarRecuperacao } from './auth-seguranca-ui.js';
@@ -15,6 +16,7 @@ const labels={rascunho:'Rascunho',acompanhamento:'Em acompanhamento',concluido:'
 const label=v=>labels[v]??String(v??'').replaceAll('_',' ');
 const badge=(v,classe='')=>`<span class="badge ${classe||(['concluido','aprovado'].includes(v)?'green':v==='reprovado'?'red':'blue')}">${esc(label(v))}</span>`;
 let forms={},session=null,perfil=null,demo=false,dados={pacientes:[],atendimentos:[],testes:[],eventos:[]},lastAction=Date.now(),route='inicio',mode='gerencial';
+let demoAcoes=[];
 let demoVisitas=[],demoNps=[],demoHistorico=[];
 let demoUsers=[],demoProntuario=[],demoAnexos=new Map(),demoCadastros=new Map();
 const navigation=[['usuarios','⚙','Usuários'],['importacao','⇧','Importar pacientes'],['indicadores','▥','Indicadores'],['inicio','◈','Visão geral'],['visitas','▦','Visitas e qualidade'],['documentos','▣','Documentos'],['pacientes','◎','Pacientes'],['atendimentos','▤','Atendimentos'],['agenda','◷','Retornos'],['testes','◇','Padronização'],['configuracoes','⚙','Configurações']];
@@ -48,7 +50,7 @@ function login(){app.innerHTML=`<div class="login-wrap"><section class="login-st
  document.querySelector('#demo').onclick=()=>{demo=true;perfil={nome:'Equipe de demonstração',papel:'superadmin',profissao:'enfermeiro',id:'demo',empresa_id:'demo'};lastAction=Date.now();dados={pacientes:[{id:'p1',responsavel_id:'demo',nome:'Paciente fictício 01',codigo:'DEMO-001',linha:'stomapro',cidade:'Fortaleza',uf:'CE',criado_em:hoje()},{id:'p2',responsavel_id:'demo',nome:'Paciente fictício 02',codigo:'DEMO-002',linha:'confortcath',cidade:'São Paulo',uf:'SP',criado_em:hoje()}],atendimentos:[{id:'a1',paciente_id:'p1',linha:'stomapro',status:'acompanhamento',proximo_retorno:hoje(),formulario_versao:'stomapro@1.0.0',respostas:{},observacoes:'Registro fictício para conhecer o fluxo.',criado_em:hoje()}],testes:[{id:'t1',instituicao:'Hospital de demonstração',produto:'StomaPro · Unita',objetivo:'Avaliação demonstrativa de padronização.',criterios:'Critérios definidos pela equipe técnica da instituição.',quantidade:10,status:'em_teste',inicio:hoje(),retorno:hoje(),resultado:'',proxima_acao:'Registrar devolutiva da equipe técnica.',criado_em:hoje()}],eventos:[]};render();};
 }
 async function finalizarAcesso(){lastAction=Date.now();const r=await fetch(CONFIG.url+'/rest/v1/campo_perfis?select=id,empresa_id,nome,papel,ativo,profissao,gestor_id',{headers:{apikey:CONFIG.key,Authorization:'Bearer '+session.access_token},cache:'no-store'});if(!r.ok)throw Error('Não foi possível validar o perfil. Tente novamente.');const perfis=await r.json();perfil=perfis[0];if(!perfil?.ativo)throw Error('Conta sem autorização para o Procirúrgica Campo. Solicite a liberação ao gestor.');if(mode==='gerencial'&&!papelGerencial(perfil.papel))mode='campo';await carregar();render();}
-async function sair(){if(session){try{await fetch(CONFIG.url+'/auth/v1/logout?scope=local',{method:'POST',headers:{apikey:CONFIG.key,Authorization:'Bearer '+session.access_token}});}catch{/* Sempre limpa a sessão local. */}}session=null;perfil=null;demo=false;demoVisitas=[];demoNps=[];demoHistorico=[];demoUsers=[];demoProntuario=[];demoAnexos.clear();demoCadastros.clear();dados={pacientes:[],atendimentos:[],testes:[],eventos:[]};modal.close();login();}
+async function sair(){if(session){try{await fetch(CONFIG.url+'/auth/v1/logout?scope=local',{method:'POST',headers:{apikey:CONFIG.key,Authorization:'Bearer '+session.access_token}});}catch{/* Sempre limpa a sessão local. */}}session=null;perfil=null;demo=false;demoAcoes=[];demoVisitas=[];demoNps=[];demoHistorico=[];demoUsers=[];demoProntuario=[];demoAnexos.clear();demoCadastros.clear();dados={pacientes:[],atendimentos:[],testes:[],eventos:[]};modal.close();login();}
 function shell(body){app.innerHTML=`<div class="shell ${mode==='campo'?'field-mode':''}"><aside class="sidebar"><a class="wordmark" href="/">PROCIRÚRGICA<span class="submark">GRUPO PROHOSPITAL</span></a><div class="workspace"><b>PROCUIDAR · CUIDADO CONTINUADO</b><br>${mode==='campo'?'Equipe de campo':'Painel gerencial'} · Homologação</div><nav class="nav" aria-label="Menu principal">${navigation.filter(([id])=>(!['usuarios','importacao'].includes(id)||papelGerencial(perfil.papel))&&(!['visitas','documentos'].includes(id)||perfil.profissao!=='comercial')&&(perfil.papel!=='juridico'||['documentos','configuracoes'].includes(id))).map(([id,icon,t])=>`<a class="${route===id?'active':''}" href="${url(id)}"><span aria-hidden="true">${icon}</span>${t}</a>`).join('')}</nav><div class="sidebar-foot"><p>StomaPro · ConfortCath</p><span>Desenvolvido pela GRIT<br>Soluções e Negócios</span></div></aside><div class="main"><header class="topbar"><div class="row"><span class="badge ${demo?'amber':'green'}">${demo?'DEMONSTRAÇÃO':'SESSÃO AUTENTICADA'}</span><span id="network" class="online ${navigator.onLine?'':'off'}">${navigator.onLine?'Conectado':'Sem conexão · envio indisponível'}</span></div><div class="row"><span class="small hide-mobile">${esc(perfil.nome)}</span><div class="avatar" aria-hidden="true">${esc(perfil.nome.split(' ').map(x=>x[0]).slice(0,2).join(''))}</div><button class="btn ghost" id="logout">Sair</button></div></header><main class="content">${body}<p class="version space-top">PROCIRÚRGICA CAMPO · ${CONFIG.version} · ${demo?'DADOS FICTÍCIOS':'BASE DE HOMOLOGAÇÃO'}</p></main>${mode==='campo'&&perfil.papel!=='juridico'&&perfil.profissao!=='comercial'?'<nav class="field-bottom-nav" aria-label="Atalhos da equipe de campo">'+[['visitas','Visitas'],['pacientes','Pacientes'],['atendimentos','Atender'],['agenda','Retornos']].map(([id,t])=>'<a href="'+url(id)+'" '+(route===id?'aria-current="page"':'')+'>'+t+'</a>').join('')+'</nav>':''}</div></div>`;document.querySelector('#logout').onclick=sair;bind();}
 function head(title,sub,button=''){return `<div class="page-head"><div><div class="eyebrow">${mode==='campo'?'OPERAÇÃO EM CAMPO':'INTELIGÊNCIA DO CUIDADO'}</div><h1>${title}</h1><p>${sub}</p></div>${button}</div>`;}
 const novo=(tipo,texto)=>`<button class="btn primary" data-new="${tipo}">+ ${texto}</button>`;
@@ -86,7 +88,7 @@ async function rpc(nome,payload={}){
  if(session.expires_at*1000<Date.now()+60000)session=await authFetch('token?grant_type=refresh_token',{refresh_token:session.refresh_token});
  const r=await fetch(CONFIG.url+'/rest/v1/rpc/'+nome,{method:'POST',headers:{apikey:CONFIG.key,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});
  const value=await r.json().catch(()=>null);
- if(!r.ok){const msg=value?.message??'';if(/Visita|visita|Pesquisa|pesquisa|Profissional|Conflito|Informe o motivo|Justifique|Cadastro alterado|Identifique a liminar|Informe familiar|Informe o plano|Registre resultado|Responsavel profissional|Identificacao invalida|Justifique/.test(msg))throw Error(msg);if(msg.includes('Conta Auth'))throw Error('Conta de autenticação confirmada não encontrada. A conta precisa estar ativada antes de vincular o acesso.');if(msg.includes('outra empresa'))throw Error('Este usuário já está vinculado a outra empresa.');if(msg.includes('proprio'))throw Error('Você não pode desativar ou rebaixar o próprio acesso.');if(msg.includes('superadmin'))throw Error('Somente o superadmin pode administrar gestores.');if(r.status===401||r.status===403)throw Error('Seu perfil não permite esta operação. Entre novamente ou consulte o superadmin.');throw Error('Não foi possível concluir a operação. Verifique os dados e sua conexão.');}
+ if(!r.ok){const msg=value?.message??'';if(/Acao|acao|Meta|meta|Tarefa|tarefa|Conclua|Consumo|consumo|Pesquisa|pesquisa|Documento|documento|Informe|Justifique|Registre evidencia|Vincule|Checklist|Link|Limite diario|Visita|visita|Pesquisa|pesquisa|Profissional|Conflito|Informe o motivo|Justifique|Cadastro alterado|Identifique a liminar|Informe familiar|Informe o plano|Registre resultado|Responsavel profissional|Identificacao invalida|Justifique/.test(msg))throw Error(msg);if(msg.includes('Conta Auth'))throw Error('Conta de autenticação confirmada não encontrada. A conta precisa estar ativada antes de vincular o acesso.');if(msg.includes('outra empresa'))throw Error('Este usuário já está vinculado a outra empresa.');if(msg.includes('proprio'))throw Error('Você não pode desativar ou rebaixar o próprio acesso.');if(msg.includes('superadmin'))throw Error('Somente o superadmin pode administrar gestores.');if(r.status===401||r.status===403)throw Error('Seu perfil não permite esta operação. Entre novamente ou consulte o superadmin.');throw Error('Não foi possível concluir a operação. Verifique os dados e sua conexão.');}
  return value;
 }
 
@@ -113,6 +115,7 @@ function contextoCadastro(){return {
 };}
 
 function contextoProntuario(){return{
+ ...contextoAcoes(),abrirAcompanhamento:(p,voltar)=>abrirAcompanhamento(p,contextoAcoes(),voltar),
  perfil,dialogo,notify,abrirCofre:id=>{modal.close();location.hash='#/documentos?paciente='+encodeURIComponent(id);},atendimentos:dados.atendimentos,equipe:contextoCadastro().equipe,lerCadastro:contextoCadastro().lerCadastro,editarCadastro:p=>abrirCadastro(p,contextoCadastro()),
  listarAnexos:async id=>demo?[...demoAnexos.values()].filter(a=>a.registro_id===id):rpc('campo_ler_anexos',{p_registro:id}),
  enviarAnexo:async(p,f)=>{if(demo){if(!demoAnexos.has(p.p_id))demoAnexos.set(p.p_id,{id:p.p_id,registro_id:p.p_registro,nome:p.p_nome,mime:p.p_mime,tamanho:p.p_tamanho,tamanho_original:p.p_original,otimizado:p.p_otimizado,descricao:p.p_descricao,responsavel_nome:perfil.nome,confirmado_em:new Date().toISOString(),blob:f});return;}const reserva=await rpc('campo_reservar_midia',p);if(reserva.status!=='confirmado')await arquivoStorage(reserva.caminho,f);await rpc('campo_confirmar_anexo',{p_id:p.p_id});},
@@ -123,7 +126,7 @@ function contextoProntuario(){return{
 
 
 function contextoVisitas(){return{
- perfil,notify,dialogo,hoje,fechar:()=>modal.close(),pacientes:()=>dados.pacientes,equipe:contextoCadastro().equipe,abrirPaciente:id=>abrir('pacientes',id),
+ perfil,notify,dialogo,hoje,fechar:()=>modal.close(),linksPesquisa:async id=>demo?[]:rpc('campo_listar_links_pesquisa',{p_visita:id}),emitirPesquisa:async p=>{if(demo)throw Error('A emissão de links exige autenticação na homologação.');return rpc('campo_emitir_pesquisa',p);},revogarPesquisa:async id=>rpc('campo_revogar_pesquisa',{p_id:id}),pacientes:()=>dados.pacientes,equipe:contextoCadastro().equipe,abrirPaciente:id=>abrir('pacientes',id),
  prontuario:async id=>contextoProntuario().listar(id,0),
  listar:async(de,ate)=>demo?demoVisitas.filter(v=>v.inicio.slice(0,10)>=de&&v.inicio.slice(0,10)<=ate):rpc('campo_listar_visitas',{p_de:de,p_ate:ate}),
  pesquisas:async(de,ate)=>demo?demoNps.filter(n=>demoVisitas.some(v=>v.id===n.visita_id&&v.inicio.slice(0,10)>=de&&v.inicio.slice(0,10)<=ate)):rpc('campo_listar_nps',{p_de:de,p_ate:ate}),
@@ -140,11 +143,20 @@ async function requisicaoCofre(body){
  return body.operacao==='baixar'?r.blob():r.json();
 }
 function contextoCofre(){return{
+ ...contextoAcoes(),fecharChecklist:()=>modal.close(),abrirChecklist:(p,voltar)=>abrirAcompanhamento(p,{...contextoAcoes(),listarDocumentos:contextoCofre().listarDocumentos},voltar,true),
  perfil,notify,dialogo,
  pacientesCofre:async()=>demo?dados.pacientes:rpc('campo_cofre_pacientes'),
  listarDocumentos:async id=>demo?[]:rpc('campo_listar_documentos',{p_paciente:id}),
  enviarDocumento:async(p,file)=>{if(demo)throw Error('O cofre exige autenticação; não envia arquivos na demonstração.');const r=await rpc('campo_reservar_documento',p);if(r.status!=='confirmado')await arquivoStorage(r.caminho,file,'campo-documentos-pessoais');return requisicaoCofre({id:p.p_id,operacao:'confirmar'});},
  baixarDocumento:async id=>requisicaoCofre({id,operacao:'baixar'})
+};}
+
+
+function contextoAcoes(){return{
+ perfil,notify,dialogo,hoje,
+ acoes:async(id,tipo)=>{if(!demo)return rpc('campo_listar_acoes',{p_paciente:id,p_tipo:tipo});const rows=demoAcoes.filter(r=>r.paciente_id===id&&(!tipo||r.tipo===tipo)).sort((a,b)=>b.versao-a.versao);return [...new Map(rows.map(r=>[r.item_id,rows.find(x=>x.item_id===r.item_id)])).values()];},
+ historicoAcao:async id=>demo?demoAcoes.filter(r=>r.item_id===id).sort((a,b)=>a.versao-b.versao):rpc('campo_historico_acao',{p_item:id}),
+ salvarAcao:async p=>{if(!demo)return rpc('campo_registrar_acao',p);const sent=demoAcoes.find(r=>r.evento_id===p.p_evento);if(sent)return sent;const row={evento_id:p.p_evento,item_id:p.p_item,paciente_id:p.p_paciente,tipo:p.p_tipo,versao:p.p_versao+1,dados:structuredClone(p.p_dados),autor_id:perfil.id,criado_em:new Date().toISOString()};demoAcoes.push(row);return row;}
 };}
 
 function contextoAdmin(){return{
