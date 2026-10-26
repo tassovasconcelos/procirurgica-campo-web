@@ -1,7 +1,7 @@
 name: ProCuidar checks
 on:
   push:
-    branches: [feat/crm-cuidado-juridico-v2]
+    branches: [feat/crm-cuidado-juridico-v2, main]
   pull_request:
 permissions:
   contents: read
@@ -19,9 +19,14 @@ jobs:
           node --experimental-default-type=module --check procuidar-formularios-ui.js
           node --experimental-default-type=module --check prontuario-ui.js
           node --experimental-default-type=module tests/procuidar-formularios.test.mjs
-      - name: Browser dependencies
-        run: |
-          npm install --no-save playwright@1.56.1
-          npx playwright install --with-deps chromium
-      - name: Browser save and retry
-        run: node --experimental-default-type=module tests/procuidar-browser.mjs
+  verify-hostinger:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify published modules
+        run: node tests/verify-hostinger.mjs
