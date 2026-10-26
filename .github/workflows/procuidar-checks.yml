@@ -23,7 +23,11 @@ jobs:
       - name: Browser dependencies
         run: |
           npm install --no-save playwright@1.56.1
-          npx playwright install --with-deps chromium
+          if command -v google-chrome >/dev/null; then
+            echo "PLAYWRIGHT_CHROME_CHANNEL=chrome" >> "$GITHUB_ENV"
+          else
+            npx playwright install chromium
+          fi
       - name: Browser mobile and regression
         run: |
           node --experimental-default-type=module tests/procuidar-browser.mjs

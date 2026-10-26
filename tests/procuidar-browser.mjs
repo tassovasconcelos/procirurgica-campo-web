@@ -7,7 +7,7 @@ const base=process.cwd();
 const server=http.createServer(async(req,res)=>{try{const name=resolve(base,'.'+new URL(req.url,'http://localhost').pathname);if(!name.startsWith(base+'/'))throw Error();const data=await readFile(name);res.setHeader('Content-Type',extname(name)==='.js'?'text/javascript':'text/html');res.end(data);}catch{res.statusCode=404;res.end();}});
 await new Promise(r=>server.listen(8099,'127.0.0.1',r));
 let browser;
-try{browser=await chromium.launch();const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:8099/tests/procuidar-harness.html');
+try{browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHROME_CHANNEL||undefined});const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:8099/tests/procuidar-harness.html');
 await page.evaluate(async()=>{const {abrirFormularioProCuidar}=await import('/procuidar-formularios-ui.js');window.sent=[];window.returned=0;
 const ctx={perfil:{id:'synthetic',nome:'Profissional fictício',profissao:'enfermeiro'},notify:()=>{},dialogo:(t,b)=>{const d=document.querySelector('dialog');d.innerHTML='<button id="close-modal" type="button">Fechar</button>'+b;d.querySelector('#close-modal').onclick=()=>d.close();if(!d.open)d.showModal();},salvar:async p=>{window.sent.push(structuredClone(p));if(window.sent.length===1)throw Error('Falha de rede simulada');}};
 abrirFormularioProCuidar({id:'ficticio',nome:'Paciente fictício',codigo:'T-001',linha:'confortcath'},ctx,()=>{window.returned++;document.querySelector('dialog').close();});});
