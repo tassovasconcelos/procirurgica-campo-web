@@ -13,6 +13,7 @@ set local role authenticated;
 do $$
 declare v jsonb;d jsonb;request uuid:=gen_random_uuid();result uuid;score uuid:=gen_random_uuid();p uuid:=current_setting('test.patient')::uuid;n uuid:=current_setting('test.nurse')::uuid;vid uuid:=current_setting('test.visit')::uuid;rid uuid:=current_setting('test.record')::uuid;
 begin
+ insert into public.campo_atendimentos(id,empresa_id,responsavel_id,paciente_id,linha,status,respostas,formulario_versao,consentimento,termo_versao,homologacao) select gen_random_uuid(),empresa_id,n,p,'stomapro','rascunho','{}','stomapro@1.0.0',true,'homologacao-v1',true from public.campo_pacientes where id=p;
  d=jsonb_build_object('id',vid,'paciente_id',p,'profissional_id',n,'inicio',now()-interval '1 day','fim',now()-interval '23 hours','status','agendada','objetivo','Visita ficticia','motivo','','registro_id',null,'versao',0,'homologacao',true);
  v=public.campo_salvar_visita(request,d);
  if v<>public.campo_salvar_visita(request,d) then raise exception 'FAIL idempotencia';end if;
@@ -35,5 +36,10 @@ begin
  perform set_config('request.jwt.claim.sub',current_setting('test.commercial'),true);
  if (select count(*) from public.campo_visitas where id=vid)<>0 then raise exception 'FAIL RLS comercial';end if;
 end$$;
+reset role;
+update public.campo_perfis set profissao='comercial' where id=current_setting('test.nurse')::uuid;
+select set_config('request.jwt.claim.sub',current_setting('test.nurse'),true);
+set local role authenticated;
+do $legacy$ begin if exists(select 1 from public.campo_atendimentos where paciente_id=current_setting('test.patient')::uuid) then raise exception 'FAIL comercial acessou atendimento legado';end if;end $legacy$;
 reset role;
 rollback;

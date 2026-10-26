@@ -29,3 +29,5 @@ CI: sintaxe, indicadores e browser mobile com APIs simuladas. Isso não substitu
 5. Offline protegido com política de dispositivos, expiração, criptografia e resolução de conflitos, antes de permitir prontuário no aparelho.
 6. Plano de cuidados estruturado com tarefas/metas e reavaliação; os novos campos de metas são narrativos nesta etapa.
 7. Integrações de alertas e análises de IA somente com fontes aprovadas, permissão e revisão humana. Não há modelo clínico preditivo ativado.
+
+Reforço de acesso: atendimentos legados passaram a exigir escopo clínico na leitura e escrita. Teste transacional confirmou bloqueio após mudança do profissional para função Comercial.

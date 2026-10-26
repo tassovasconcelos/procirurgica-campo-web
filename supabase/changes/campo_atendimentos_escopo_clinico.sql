@@ -1,0 +1,3 @@
+create policy campo_atendimento_clinico_ler on public.campo_atendimentos as restrictive for select to authenticated using(campo_private.pode_prontuario(paciente_id,false));
+create policy campo_atendimento_clinico_criar on public.campo_atendimentos as restrictive for insert to authenticated with check(campo_private.pode_prontuario(paciente_id,true));
+create policy campo_atendimento_clinico_editar on public.campo_atendimentos as restrictive for update to authenticated using(campo_private.pode_prontuario(paciente_id,true)) with check(campo_private.pode_prontuario(paciente_id,true));
