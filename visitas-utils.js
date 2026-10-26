@@ -4,7 +4,7 @@ export function indicadoresVisitas(visitas,pesquisas,agora=Date.now()){
  const encerradas=visitas.filter(v=>v.status==='realizada').length,previstas=visitas.filter(v=>new Date(v.inicio).getTime()<=agora).length;
  const ids=new Set(visitas.map(v=>v.id)),notas=pesquisas.filter(n=>ids.has(n.visita_id)&&Number.isInteger(n.nota)&&n.nota>=0&&n.nota<=10);
  const promotores=notas.filter(n=>n.nota>=9).length,detratores=notas.filter(n=>n.nota<=6).length;
- return {total:visitas.length,realizadas:encerradas,previstas,cumprimento:previstas?100*encerradas/previstas:null,
+ return {total:visitas.length,realizadas:encerradas,previstas,cumprimento:previstas?100*visitas.filter(v=>v.status==='realizada'&&new Date(v.inicio).getTime()<=agora).length/previstas:null,
  atrasadas:visitas.filter(v=>ABERTAS.includes(v.status)&&new Date(v.fim).getTime()<agora).length,
  canceladas:visitas.filter(v=>v.status==='cancelada').length,reagendadas:visitas.filter(v=>v.status==='reagendada').length,
  respostas:notas.length,promotores,detratores,passivos:notas.length-promotores-detratores,
