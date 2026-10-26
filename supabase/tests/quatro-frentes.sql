@@ -20,6 +20,7 @@ begin
  r=public.campo_registrar_acao(ev,m,p,'meta',0,d);
  if r<>public.campo_registrar_acao(ev,m,p,'meta',0,d) then raise exception 'FAIL idempotencia';end if;
  perform public.campo_registrar_acao(gen_random_uuid(),t,p,'tarefa',0,jsonb_build_object('titulo','Tarefa ficticia','meta_id',m,'prazo','2030-01-01','status','aberta','executor','cuidador','evidencia','','observacao',''));
+ begin perform public.campo_registrar_acao(gen_random_uuid(),m,p,'meta',1,d||'{"status":"cancelada","observacao":"Cancelamento ficticio"}');raise exception 'FAIL cancelamento com tarefa aberta';exception when raise_exception then if sqlerrm like 'FAIL%' then raise;end if;end;
  begin perform public.campo_registrar_acao(gen_random_uuid(),m,p,'meta',1,d||'{"status":"concluida","evidencia":"Teste informado"}');raise exception 'FAIL meta com tarefa aberta';exception when raise_exception then if sqlerrm like 'FAIL%' then raise;end if;end;
  begin perform public.campo_registrar_acao(gen_random_uuid(),t,p,'tarefa',1,jsonb_build_object('titulo','Tarefa ficticia','meta_id',m,'prazo','2030-01-01','status','concluida','executor','cuidador','evidencia','','observacao',''));raise exception 'FAIL tarefa sem evidencia';exception when raise_exception then if sqlerrm like 'FAIL%' then raise;end if;end;
  perform public.campo_registrar_acao(gen_random_uuid(),t,p,'tarefa',1,jsonb_build_object('titulo','Tarefa ficticia','meta_id',m,'prazo','2030-01-01','status','concluida','executor','cuidador','evidencia','Conclusao ficticia','observacao',''));
