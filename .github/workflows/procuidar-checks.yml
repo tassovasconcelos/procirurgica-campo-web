@@ -1,0 +1,21 @@
+name: ProCuidar checks
+on:
+  push:
+    branches: [feat/crm-cuidado-juridico-v2]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and validation
+        run: |
+          node --experimental-default-type=module --check procuidar-formularios-ui.js
+          node --experimental-default-type=module --check prontuario-ui.js
+          node --experimental-default-type=module tests/procuidar-formularios.test.mjs
