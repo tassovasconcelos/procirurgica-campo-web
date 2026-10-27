@@ -7,6 +7,6 @@ assert.throws(()=>conteudoFicha(f,{produto_referencia:'Fictício',destreza:'Inv�
 assert.throws(()=>conteudoFicha(f,{produto_referencia:'Fictício',cateteres_dia:'1.5'}));
 assert.throws(()=>conteudoFicha(f,{produto_referencia:'Fictício',data_inicio:'2026-10-26',data_retorno:'2026-10-25'}));
 assert.throws(()=>conteudoFicha(schema.forms.find(f=>f.id==='conclusao_teste'),{produto_referencia:'Fictício',resultado:'Aprovado'}));
-assert.match(conteudoFicha(f,{produto_referencia:'Fictício'}).avaliacao,/1.1.0/);
+assert.ok(conteudoFicha(f,{produto_referencia:'Fictício'}).avaliacao.includes(schema.schemaVersion));
 for(const form of schema.forms)assert.equal(new Set(form.fields.map(x=>x.id)).size,form.fields.length);
 console.log('ProCuidar: validações aprovadas');

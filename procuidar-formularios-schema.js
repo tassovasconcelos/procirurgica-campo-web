@@ -1,5 +1,5 @@
 export default {
-  "schemaVersion": "1.1.0-homologacao",
+  "schemaVersion": "1.3.0-homologacao",
   "program": {
     "name": "ProCuidar",
     "description": "Programa de Cuidado Continuado do Grupo Prohospital"
@@ -123,7 +123,8 @@ export default {
         "Diagnósticos e alternativas de informações médicas ilegíveis na extração.",
         "Confirmar alternativas da origem da lesão e do histórico de infecção.",
         "Confirmar tabela de modelos, calibres e comprimentos. Não cadastrada por inferência."
-      ]
+      ],
+      "linha": "confortcath"
     },
     {
       "id": "atendimento_ostomia",
@@ -217,7 +218,8 @@ export default {
         "Confirmar todas as alternativas de tipo de derivação; campo livre provisório.",
         "Confirmar campos e alternativas de hospital/local de atendimento.",
         "Revisar as demais seções da imagem(4); extração insuficiente."
-      ]
+      ],
+      "linha": "stomapro"
     },
     {
       "id": "avaliacao_coletor",
@@ -293,7 +295,8 @@ export default {
         "Confirmar a escala de ângulo de drenagem e sua unidade.",
         "Confirmar os desenhos e alternativas de tipo de abdômen.",
         "Confirmar associação de cada linha da tabela ao equipamento."
-      ]
+      ],
+      "linha": "stomapro"
     },
     {
       "id": "conclusao_teste",
@@ -373,6 +376,255 @@ export default {
         "Formulário complementar proposto; não transcrito das imagens.",
         "Critérios de aprovação e responsáveis habilitados precisam de validação institucional.",
         "Nenhuma homologação ou indicação clínica é gerada automaticamente."
+      ],
+      "linha": "geral"
+    },
+    {
+      "id": "planejamento_teste",
+      "title": "Planejamento do teste individual",
+      "linha": "geral",
+      "sources": [],
+      "fields": [
+        {
+          "id": "registro_profissional",
+          "label": "Conselho / registro profissional",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "produto_referencia",
+          "label": "Produto / referência",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "lote",
+          "label": "Lote",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "data_inicio",
+          "label": "Início do teste",
+          "type": "date",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "data_retorno",
+          "label": "Retorno previsto",
+          "type": "date",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "objetivo_teste",
+          "label": "Objetivo do teste",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto",
+          "required": true
+        },
+        {
+          "id": "criterios_teste",
+          "label": "Critérios definidos pelo profissional",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto",
+          "required": true
+        },
+        {
+          "id": "condicao_inicial",
+          "label": "Condição inicial e contexto informado",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "orientacao_inicial",
+          "label": "Orientações conforme instruções aprovadas do fabricante",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "plano_avaliacao",
+          "label": "Como e quando reavaliar",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        }
+      ],
+      "pending": [
+        "Modelo operacional proposto. Critérios e protocolo devem ser validados pela liderança clínica.",
+        "Não define calibre, frequência, substituição ou indicação clínica."
+      ]
+    },
+    {
+      "id": "avaliacao_uso",
+      "title": "Avaliação de uso e treinamento",
+      "linha": "geral",
+      "sources": [],
+      "fields": [
+        {
+          "id": "registro_profissional",
+          "label": "Conselho / registro profissional",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "produto_referencia",
+          "label": "Produto / referência",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "lote",
+          "label": "Lote",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "data_inicio",
+          "label": "Início do teste",
+          "type": "date",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "data_retorno",
+          "label": "Retorno previsto",
+          "type": "date",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "relato_uso",
+          "label": "Relato do paciente ou cuidador",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto",
+          "required": true
+        },
+        {
+          "id": "manuseio",
+          "label": "Manuseio informado",
+          "type": "select",
+          "origin": "modelo_operacional_proposto",
+          "options": [
+            "Sem dificuldade relatada",
+            "Dificuldade relatada",
+            "Não avaliado"
+          ]
+        },
+        {
+          "id": "compreensao",
+          "label": "Compreensão das orientações",
+          "type": "select",
+          "origin": "modelo_operacional_proposto",
+          "options": [
+            "Compreendeu segundo avaliação do profissional",
+            "Necessita reforço de treinamento",
+            "Não avaliado"
+          ]
+        },
+        {
+          "id": "embalagem",
+          "label": "Embalagem e identificação observadas",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "conforto",
+          "label": "Conforto e dificuldades relatadas",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "treinamento",
+          "label": "Treinamento realizado e quem participou",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "encaminhamento",
+          "label": "Encaminhamento e próximo passo",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        }
+      ],
+      "pending": [
+        "Não substitui avaliação clínica nem instruções de uso do fabricante.",
+        "Resultados relatados não comprovam segurança ou eficácia do produto."
+      ]
+    },
+    {
+      "id": "reavaliacao_teste",
+      "title": "Reavaliação e registro de ocorrências",
+      "linha": "geral",
+      "sources": [],
+      "fields": [
+        {
+          "id": "registro_profissional",
+          "label": "Conselho / registro profissional",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "produto_referencia",
+          "label": "Produto / referência",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "lote",
+          "label": "Lote",
+          "type": "text",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "data_inicio",
+          "label": "Início do teste",
+          "type": "date",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "data_retorno",
+          "label": "Retorno previsto",
+          "type": "date",
+          "origin": "complemento_operacional_proposto"
+        },
+        {
+          "id": "comparacao",
+          "label": "Comparação com a avaliação anterior",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto",
+          "required": true
+        },
+        {
+          "id": "ocorrencia",
+          "label": "Ocorrência ou dificuldade relatada/observada",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "quando_ocorreu",
+          "label": "Quando ocorreu, segundo o relato",
+          "type": "text",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "conduta_registrada",
+          "label": "Conduta e orientações registradas pelo profissional",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "encaminhamento",
+          "label": "Encaminhamento à equipe responsável / SAC / qualidade",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        },
+        {
+          "id": "proxima_acao",
+          "label": "Próxima ação, responsável e prazo",
+          "type": "textarea",
+          "origin": "modelo_operacional_proposto"
+        }
+      ],
+      "pending": [
+        "Não classifica automaticamente eventos adversos nem substitui os procedimentos de qualidade/tecnovigilância.",
+        "Encaminhamentos e condutas são responsabilidade dos profissionais habilitados."
       ]
     }
   ]

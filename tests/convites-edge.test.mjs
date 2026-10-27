@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {criarHandler} from '../supabase/functions/campo-convites/handler.ts';
+const env={SUPABASE_URL:'https://test.invalid',SUPABASE_ANON_KEY:'PUBLIC-TEST',SUPABASE_SERVICE_ROLE_KEY:'PRIVATE-TEST-SECRET'};
+const body={id:'11111111-1111-4111-8111-111111111111',email:'pessoa@example.invalid',nome:'Pessoa fictícia',papel:'gestor',profissao:'',gestor:'',confirmar_envio:true};
+let calls=[];const mock=async(url,options={})=>{calls.push(String(url));if(String(url).endsWith('/user'))return Response.json({id:'actor'});if(String(url).includes('campo_preparar_convite'))return Response.json({id:body.id,novo:true,status:'preparado'});if(String(url).includes('/invite?'))return Response.json({id:'new-user'});if(String(url).includes('campo_concluir_convite'))return Response.json('enviado');throw Error('Unexpected request');};
+const req=(auth=true,origin='https://procirurgica.gritnews.com.br')=>new Request('https://test.invalid/function',{method:'POST',headers:{Origin:origin,...(auth?{Authorization:'Bearer test-token'}:{}),'Content-Type':'application/json'},body:JSON.stringify(body)});
+let fn=criarHandler(env,mock),res=await fn(req(false));assert.equal(res.status,401);assert.equal(calls.length,0);
+res=await fn(req(true,'https://other.invalid'));assert.equal(res.status,403);assert.equal(calls.length,0);
+res=await fn(req());assert.equal(res.status,200);const text=await res.text();assert.ok(!text.includes(env.SUPABASE_SERVICE_ROLE_KEY));assert.equal(JSON.parse(text).status,'enviado');assert.equal(calls.filter(u=>u.includes('/invite?')).length,1);
+calls=[];fn=criarHandler(env,async(url,opts)=>String(url).includes('campo_preparar_convite')?Response.json({id:body.id,novo:false,status:'preparado'}):mock(url,opts));res=await fn(req());assert.equal((await res.json()).repeticao,true);assert.equal(calls.filter(u=>u.includes('/invite?')).length,0);
+calls=[];fn=criarHandler(env,async(url,opts)=>String(url).includes('campo_preparar_convite')?Response.json({message:'Somente superadmin pode convidar'},{status:403}):mock(url,opts));assert.equal((await fn(req())).status,403);assert.equal(calls.filter(u=>u.includes('/invite?')).length,0);
+console.log('Convites: autenticação, origem, permissão, repetição e não exposição da chave aprovados; envio simulado.');

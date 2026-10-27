@@ -1,1 +1,1 @@
-export const CONFIG = Object.freeze({ url: 'https://krpbgeqkcymrybmgqlwt.supabase.co', key: 'sb_publishable_MEBi-IF658cdglIIWN5mRQ_ZvnkDxtU', version:'0.12.0-homologacao' });
+export const CONFIG = Object.freeze({ url: 'https://krpbgeqkcymrybmgqlwt.supabase.co', key: 'sb_publishable_MEBi-IF658cdglIIWN5mRQ_ZvnkDxtU', version:'0.13.0-homologacao' });

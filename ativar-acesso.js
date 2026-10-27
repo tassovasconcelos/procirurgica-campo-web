@@ -1,0 +1,13 @@
+import {CONFIG} from './config.js';
+const hash=new URLSearchParams(location.hash.slice(1)),query=new URLSearchParams(location.search);let access=hash.get('access_token')??'',tokenHash=query.get('token_hash')??'';
+const type=hash.get('type')??query.get('type');hash.delete('access_token');hash.delete('refresh_token');query.delete('token_hash');history.replaceState(null,'',location.pathname);const status=document.querySelector('#ativacao-status'),form=document.querySelector('#ativacao-form');let busy=false;
+async function call(path,method='GET',body){const r=await fetch(CONFIG.url+'/auth/v1/'+path,{method,headers:{apikey:CONFIG.key,...(access?{Authorization:'Bearer '+access}:{}),'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});if(!r.ok)throw Error('Não foi possível validar ou concluir. Reabra o convite válido ou recupere seu acesso.');return r.status===204?null:r.json();}
+try{if(type!=='invite')throw Error('Abra o link de convite recebido por e-mail. Para conta já confirmada, use a recuperação de acesso.');
+ if(!access&&tokenHash){const session=await call('verify','POST',{token_hash:tokenHash,type:'invite'});access=session.access_token;tokenHash='';}
+ if(!access)throw Error('Convite ausente ou expirado. Abra o link recebido.');
+ const user=await call('user');if(!user.email_confirmed_at)throw Error('Confirme o e-mail antes de continuar.');
+ const r=await fetch(CONFIG.url+'/rest/v1/campo_perfis?id=eq.'+encodeURIComponent(user.id)+'&select=id,ativo',{headers:{apikey:CONFIG.key,Authorization:'Bearer '+access},cache:'no-store'});const perfis=await r.json();if(!r.ok||!perfis[0]?.ativo)throw Error('Conta confirmada, mas vínculo ainda pendente. Solicite ao superadm a vinculação desta conta.');status.textContent='Conta confirmada. Defina sua senha pessoal para entrar.';form.hidden=false;
+}catch(err){access='';tokenHash='';status.textContent=err.message;}
+setTimeout(()=>{access='';form.hidden=true;status.textContent='Esta tela de ativação expirou. Reabra o convite ou recupere seu acesso.';},600000);
+form.onsubmit=async ev=>{ev.preventDefault();if(busy)return;const senha=form.elements.senha.value;if(senha!==form.elements.confirmacao.value){status.textContent='As senhas não conferem.';return;}busy=true;form.querySelector('button').disabled=true;
+try{await call('user','PUT',{password:senha});try{await call('logout?scope=local','POST');}catch{}access='';form.reset();form.hidden=true;status.textContent='Senha definida. Volte ao acesso e entre com seu e-mail e senha pessoal.';}catch(err){status.textContent=err.message;form.querySelector('button').disabled=false;}finally{busy=false;}};
